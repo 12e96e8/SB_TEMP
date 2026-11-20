@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SyncBoard｜白板介面示範</title>
+    <style>
+      :root {
+        font-family:
+          Inter, "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+        color: #1b2742;
+        background: #e9eef5;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid #94b4ff;
+        outline-offset: 2px;
+      }
+      .app {
+        height: 100dvh;
+        min-height: 680px;
+        display: flex;
+        flex-direction: column;
+      }
+      .top {
+        height: 72px;
+        background: white;
+        border-bottom: 1px solid #dce3ee;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 22px;
+        flex: none;
+      }
+      .logo {
+        height: 38px;
+        width: 38px;
+        border-radius: 11px;
+        background: #365de7;
+        color: white;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        font-weight: 900;
+        box-shadow: 0 5px 15px #355bd033;
+      }
+      .crumb {
+        font-size: 13px;
+        color: #8790a6;
+      }
+      .boardname {
+        font-size: 17px;
+        font-weight: 800;
+        margin-top: 3px;
+      }
+      .topright {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .saved {
+        font-size: 13px;
+        color: #648078;
+      }
+      .avatars {
+        display: flex;
+        padding-left: 9px;
+      }
+      .avatar {
+        border: 2px solid white;
+        margin-left: -9px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        background: #b6725b;
+      }
+      .avatar:nth-child(2) {
+        background: #5579c0;
+      }
+      .avatar:nth-child(3) {
+        background: #9e71bb;
+      }
+      .btn {
+        border: 1px solid #d8dfeb;
+        background: white;
+        color: #283a5d;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .btn.primary {
+        background: #385de5;
+        color: white;
+        border-color: #385de5;
+      }
+      .body {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+      }
+      .side {
+        width: 77px;
+        background: white;
+        border-right: 1px solid #dbe2ec;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        padding: 16px 10px;
+        gap: 11px;
+        flex: none;
+      }
+      .tool {
+        width: 48px;
+        height: 48px;
+        border: 0;
+        background: transparent;
+        color: #52617b;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+      }
+      .tool span {
+        font-size: 21px;
+      }
+      .tool:hover,
+      .tool.active {
+        background: #e9eeff;
+        color: #3159df;
+      }
+      .separator {
+        height: 1px;
+        width: 35px;
+        background: #e0e5ef;
+        margin: 2px;
+      }
+      .stageWrap {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        background-color: #f7f9fd;
+        background-image: radial-gradient(#ccd6e6 1px, transparent 1px);
+        background-size: 22px 22px;
+      }
+      .stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .element {
+        position: absolute;
+        user-select: none;
+        touch-action: none;
+        cursor: grab;
+        box-shadow: 0 10px 22px #2b416515;
+      }
+      .element.selected {
+        outline: 2px solid #3866f6;
+        outline-offset: 4px;
+      }
+      .element.sticky {
+        padding: 17px 18px;
+        border-radius: 4px;
+        overflow: hidden;
+        white-space: pre-line;
+        line-height: 1.5;
+      }
+      .element.text {
+        box-shadow: none;
+        padding: 8px;
+        white-space: pre-line;
+        font-weight: 750;
+      }
+      .element.frame {
+        border: 2px dashed #8291c2;
+        background: rgba(214, 226, 252, 0.25);
+        border-radius: 16px;
+        box-shadow: none;
+      }
+      .element.frame .frameTitle {
+        position: absolute;
+        left: 12px;
+        top: -32px;
+        color: #596ca4;
+        font-weight: 800;
+      }
+      .element.node {
+        border: 1px solid #e0e6f1;
+        background: white;
+        border-radius: 12px;
+        padding: 12px;
+        min-height: 95px;
+        box-shadow: 0 6px 18px #394d7417;
+      }
+      .nodeHead {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .nodeIcon {
+        height: 30px;
+        width: 30px;
+        background: #e9ecff;
+        color: #3b5bcc;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+      }
+      .nodeMeta {
+        font-size: 12px;
+        color: #7a89a1;
+        margin: 12px 0 0;
+      }
+      .port {
+        position: absolute;
+        width: 11px;
+        height: 11px;
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px #8ba0bc;
+        background: #5277f3;
+        border-radius: 50%;
+        top: 45%;
+        right: -6px;
+      }
+      .port.in {
+        left: -6px;
+        right: auto;
+        background: #8ba0bc;
+      }
+      .sectionLabel {
+        position: absolute;
+        left: 27px;
+        top: 23px;
+        background: white;
+        border: 1px solid #e2e8f1;
+        border-radius: 9px;
+        padding: 9px 12px;
+        font-size: 12px;
+        color: #8490a5;
+        box-shadow: 0 3px 15px #31445d0b;
+      }
+      .flowLabel {
+        position: absolute;
+        left: 9%;
+        top: 42%;
+        font-size: 12px;
+        font-weight: 800;
+        color: #64749a;
+        background: #e9efff;
+        padding: 7px 11px;
+        border-radius: 7px;
+      }
+      .connectors {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: visible;
+      }
+      .bottom {
+        position: absolute;
+        bottom: 21px;
+        left: 24px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .bottomRight {
+        position: absolute;
+        right: 22px;
+        bottom: 21px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+      }
+      .floating {
+        background: white;
+        border: 1px solid #dce4f0;
+        box-shadow: 0 7px 22px #2e3f6415;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        gap: 4px;
+      }
+      .floating button {
+        border: 0;
+        background: transparent;
+        padding: 8px 11px;
+        color: #53627e;
+      }
+      .floating strong {
+        font-size: 13px;
+        min-width: 44px;
+        text-align: center;
+      }
+      .minimap {
+        width: 144px;
+        height: 98px;
+        background: #fff;
+        border: 1px solid #dae2ef;
+        border-radius: 12px;
+        box-shadow: 0 7px 22px #2e3f6415;
+        padding: 12px;
+        position: relative;
+      }
+      .minimap:after {
+        content: "";
+        position: absolute;
+        inset: 19px 27px;
+        border: 1.5px solid #6c8bff;
+        background: #cfe0ff26;
+      }
+      .miniitem {
+        display: inline-block;
+        width: 23px;
+        height: 15px;
+        background: #afc3ef;
+        margin: 6px 2px;
+        border-radius: 2px;
+      }
+      .properties {
+        width: 295px;
+        background: white;
+        border-left: 1px solid #dbe2ec;
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+      }
+      .propHeader {
+        padding: 23px 22px 17px;
+        border-bottom: 1px solid #e9edf5;
+        display: flex;
+        justify-content: space-between;
+      }
+      .propHeader h2 {
+        font-size: 17px;
+        margin: 0;
+      }
+      .propHeader span {
+        font-size: 12px;
+        color: #8591a6;
+      }
+      .prop {
+        padding: 20px 22px;
+        border-bottom: 1px solid #eef1f5;
+      }
+      .prop h3 {
+        font-size: 12px;
+        color: #8792a9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0 0 16px;
+      }
+      .fieldLabel {
+        display: block;
+        color: #62708b;
+        font-weight: 700;
+        font-size: 12px;
+        margin: 14px 0 7px;
+      }
+      .field {
+        border: 1px solid #dce2ee;
+        background: white;
+        color: #334460;
+        width: 100%;
+        border-radius: 9px;
+        padding: 10px 11px;
+        font-size: 13px;
+      }
+      .fields2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .swatches {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+      }
+      .swatch {
+        width: 29px;
+        height: 29px;
+        border-radius: 8px;
+        border: 1px solid #d3dcea;
+      }
+      .swatch.on {
+        outline: 2px solid #476af1;
+        outline-offset: 2px;
+      }
+      .slider {
+        width: 100%;
+        accent-color: #456af3;
+      }
+      .hint {
+        font-size: 12px;
+        line-height: 1.65;
+        color: #8390a6;
+      }
+      .pageBadge {
+        background: #f0f4ff;
+        color: #4c65bd;
+        border-radius: 7px;
+        padding: 6px 9px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .tabRow {
+        display: flex;
+        border-bottom: 1px solid #e9edf5;
+      }
+      .tabRow button {
+        flex: 1;
+        border: 0;
+        background: white;
+        padding: 14px 4px;
+        font-size: 13px;
+        color: #8b95a8;
+      }
+      .tabRow button.on {
+        color: #3e62df;
+        font-weight: 800;
+        box-shadow: inset 0 -2px #3e62df;
+      }
+      .toast {
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        background: #243457;
+        color: #fff;
+        border-radius: 11px;
+        padding: 12px 17px;
+        font-size: 13px;
+        z-index: 10;
+        box-shadow: 0 7px 25px #1a2b4655;
+        display: none;
+      }
+      .guide {
+        margin-top: auto;
+        border-radius: 12px;
+        background: #eef3ff;
+        color: #58709b;
+        padding: 14px;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+      .mobileNote {
+        display: none;
+      }
+      @media (max-width: 1000px) {
+        .properties {
+          width: 250px;
+        }
+        .top {
+          padding: 0 12px;
+        }
+        .saved {
+          display: none;
+        }
+      }
+      @media (max-width: 740px) {
+        .properties {
+          position: absolute;
+          z-index: 5;
+          right: 0;
+          top: 72px;
+          bottom: 0;
+          width: 245px;
+          box-shadow: -6px 0 28px #25345b22;
+        }
+        .app {
+          min-height: 600px;
+        }
+        .side {
+          width: 57px;
+          padding: 12px 4px;
+        }
+        .tool {
+          width: 45px;
+        }
+        .tool span {
+          font-size: 19px;
+        }
+        .topright .avatars,
+        .crumb {
+          display: none;
+        }
+        .minimap {
+          display: none;
+        }
+        .sectionLabel {
+          left: 12px;
+          top: 12px;
+        }
+        .boardname {
+          font-size: 14px;
+        }
+        .mobileNote {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="logo">S</div>
+        <div>
+          <div class="crumb">工作區 / 產品開發團隊 / 我的白板</div>
+          <div class="boardname">
+            產品規劃與自動化流程 <span class="pageBadge">示範畫面</span>
+          </div>
+        </div>
+        <div class="topright">
+          <span class="saved">● 所有變更已儲存（模擬）</span>
+          <div class="avatars">
+            <span class="avatar">雄</span><span class="avatar">林</span
+            ><span class="avatar">陳</span>
+          </div>
+          <button class="btn" id="invite">邀請協作</button
+          ><button class="btn primary" id="run">▶ 執行流程</button>
+        </div>
+      </header>
+      <div class="body">
+        <nav class="side" aria-label="畫布工具">
+          <button class="tool active" data-tool="select">
+            <span>↖</span>選取</button
+          ><button class="tool" data-tool="pan"><span>✋</span>移動</button>
+          <div class="separator"></div>
+          <button class="tool" data-add="sticky"><span>▣</span>便條紙</button
+          ><button class="tool" data-add="text"><span>Ｔ</span>文字</button
+          ><button class="tool" data-add="frame"><span>▢</span>框架</button
+          ><button class="tool" data-add="node"><span>⬡</span>節點</button>
+          <div class="separator"></div>
+          <button class="tool" id="duplicate"><span>▤</span>複製</button
+          ><button class="tool" id="delete"><span>⌫</span>刪除</button>
+        </nav>
+        <main class="stageWrap" id="stageWrap">
+          <div class="stage" id="stage">
+            <svg class="connectors" id="connectors" aria-hidden="true"></svg>
+            <div class="sectionLabel">
+              工作區畫布　/　可選取、拖曳、編輯元件
+            </div>
+            <div class="flowLabel">工作流程 A · API 資料處理</div>
+          </div>
+          <div class="bottom">
+            <div class="floating">
+              <button id="undo" title="復原">↶</button
+              ><button id="redo" title="重做">↷</button>
+            </div>
+            <span class="pageBadge">Ctrl+Z / Delete</span>
+          </div>
+          <div class="bottomRight">
+            <div class="floating">
+              <button id="minus">−</button><strong id="zoomText">100%</strong
+              ><button id="plus">＋</button><button id="reset">適合畫面</button>
+            </div>
+            <div class="minimap">
+              <span class="miniitem"></span
+              ><span class="miniitem" style="background: #f4d98f"></span
+              ><span class="miniitem"></span
+              ><span class="miniitem" style="background: #b1e4ca"></span>
+            </div>
+          </div>
+          <div class="toast" id="toast"></div>
+        </main>
+        <aside class="properties">
+          <div class="propHeader">
+            <h2>右側屬性面板</h2>
+            <span>⚙ 設定</span>
+          </div>
+          <div class="tabRow">
+            <button class="on" data-tab="style">樣式</button
+            ><button data-tab="details">內容與資料</button>
+          </div>
+          <div id="propertiesContent"></div>
+          <div class="prop" style="margin-top: auto">
+            <div class="guide">
+              <strong>介面操作提示</strong
+              ><br />點擊畫布上的便條紙、框架或流程節點，即可修改其設定。左側工具列可新增元件；拖曳元件可改變位置。
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <script>
+      const stage = document.getElementById("stage"),
+        svg = document.getElementById("connectors"),
+        panel = document.getElementById("propertiesContent"),
+        toast = document.getElementById("toast");
+      const colors = [
+        "#ffe8a1",
+        "#aee8f5",
+        "#c6eedb",
+        "#f8d1e3",
+        "#dbd1ff",
+        "#ffffff",
+      ];
+      let next = 10,
+        selected = "sticky1",
+        tab = "style",
+        zoom = 1,
+        tool = "select",
+        history = [],
+        future = [];
+      let elements = [
+        {
+          id: "frame1",
+          type: "frame",
+          x: 80,
+          y: 145,
+          w: 355,
+          h: 340,
+          text: "產品規劃區",
+          color: "#d6e2fc",
+          font: 17,
+        },
+        {
+          id: "sticky1",
+          type: "sticky",
+          x: 112,
+          y: 200,
+          w: 195,
+          h: 153,
+          text: "本週待辦事項\n\n✓ 確認需求規格\n○ 完成白板協作",
+          color: "#ffe8a1",
+          font: 17,
+        },
+        {
+          id: "sticky2",
+          type: "sticky",
+          x: 200,
+          y: 383,
+          w: 190,
+          h: 105,
+          text: "同步討論區\n團隊共同編輯內容",
+          color: "#c6eedb",
+          font: 16,
+        },
+        {
+          id: "node1",
+          type: "node",
+          x: 505,
+          y: 260,
+          w: 170,
+          h: 105,
+          text: "手動觸發",
+          color: "#ffffff",
+          font: 15,
+        },
+        {
+          id: "node2",
+          type: "node",
+          x: 740,
+          y: 260,
+          w: 170,
+          h: 105,
+          text: "HTTP GET",
+          color: "#ffffff",
+          font: 15,
+        },
+        {
+          id: "node3",
+          type: "node",
+          x: 975,
+          y: 260,
+          w: 170,
+          h: 105,
+          text: "Filter 篩選",
+          color: "#ffffff",
+          font: 15,
+        },
+      ];
+      const snapshot = () => JSON.stringify(elements);
+      function commit() {
+        history.push(snapshot());
+        if (history.length > 40) history.shift();
+        future = [];
+      }
+      function notify(text) {
+        toast.textContent = text;
+        toast.style.display = "block";
+        clearTimeout(notify.t);
+        notify.t = setTimeout(() => (toast.style.display = "none"), 2400);
+      }
+      function find() {
+        return elements.find((e) => e.id === selected);
+      }
+      function esc(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+      function render() {
+        stage.querySelectorAll(".element").forEach((e) => e.remove());
+        elements.forEach((e) => {
+          let el = document.createElement("div");
+          el.className = `element ${e.type} ${e.id === selected ? "selected" : ""}`;
+          el.dataset.id = e.id;
+          Object.assign(el.style, {
+            left: e.x * zoom + "px",
+            top: e.y * zoom + "px",
+            width: e.w * zoom + "px",
+            height: e.h * zoom + "px",
+            fontSize: e.font * zoom + "px",
+            background: e.type === "frame" ? "rgba(214,226,252,.13)" : e.color,
+          });
+          if (e.type === "node") {
+            el.innerHTML = `<div class="nodeHead"><span class="nodeIcon">${e.text.includes("HTTP") ? "⇄" : e.text.includes("Filter") ? "◇" : "▶"}</span>${esc(e.text)}</div><div class="nodeMeta">${e.text.includes("HTTP") ? "GET · https://api.example.com" : e.text.includes("Filter") ? "條件符合時繼續執行" : "點擊執行啟動流程"}</div><span class="port in"></span><span class="port"></span>`;
+          } else if (e.type === "frame")
+            el.innerHTML = `<div class="frameTitle">${esc(e.text)}</div>`;
+          else el.textContent = e.text;
+          el.addEventListener("pointerdown", startDrag);
+          el.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            selected = e.id;
+            render();
+            properties();
+          });
+          stage.append(el);
+        });
+        drawConnections();
+      }
+      function drawConnections() {
+        svg.innerHTML =
+          '<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#718cff" stroke-width="1.5"/></marker></defs>';
+        [
+          ["node1", "node2"],
+          ["node2", "node3"],
+        ].forEach(([a, b]) => {
+          let A = elements.find((e) => e.id === a),
+            B = elements.find((e) => e.id === b);
+          if (!A || !B) return;
+          let x1 = (A.x + A.w) * zoom,
+            y1 = (A.y + A.h / 2) * zoom,
+            x2 = B.x * zoom,
+            y2 = (B.y + B.h / 2) * zoom;
+          let p = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+          );
+          p.setAttribute(
+            "d",
+            `M${x1},${y1} C${x1 + 42 * zoom},${y1} ${x2 - 42 * zoom},${y2} ${x2},${y2}`,
+          );
+          p.setAttribute("stroke", "#718cff");
+          p.setAttribute("stroke-width", "2.5");
+          p.setAttribute("fill", "none");
+          p.setAttribute("marker-end", "url(#arr)");
+          svg.append(p);
+        });
+      }
+      let drag = null;
+      function startDrag(ev) {
+        if (ev.button !== 0) return;
+        let e = elements.find((x) => x.id === ev.currentTarget.dataset.id);
+        if (!e) return;
+        ev.stopPropagation();
+        selected = e.id;
+        render();
+        properties();
+        commit();
+        drag = { id: e.id, sx: ev.clientX, sy: ev.clientY, x: e.x, y: e.y };
+        document.addEventListener("pointermove", moveDrag);
+        document.addEventListener("pointerup", stopDrag, { once: true });
+      }
+      function moveDrag(ev) {
+        if (!drag) return;
+        let e = elements.find((x) => x.id === drag.id);
+        e.x = Math.max(0, Math.round(drag.x + (ev.clientX - drag.sx) / zoom));
+        e.y = Math.max(0, Math.round(drag.y + (ev.clientY - drag.sy) / zoom));
+        render();
+      }
+      function stopDrag() {
+        drag = null;
+        document.removeEventListener("pointermove", moveDrag);
+      }
+      stage.addEventListener("click", () => {
+        selected = null;
+        render();
+        properties();
+      });
+      function input(label, id, value, type = "text") {
+        return `<label class="fieldLabel" for="${id}">${label}</label><input class="field" id="${id}" type="${type}" value="${esc(value)}">`;
+      }
+      function properties() {
+        let e = find();
+        if (!e) {
+          panel.innerHTML =
+            '<div class="prop"><h3>畫布設定</h3><p class="hint">點擊任一元件，顯示元件個別的內容、位置與樣式設定。</p><span class="pageBadge">背景：點陣網格</span></div>';
+          return;
+        }
+        if (tab === "details") {
+          panel.innerHTML = `<div class="prop"><h3>元件內容</h3><span class="pageBadge">${esc(e.type.toUpperCase())}</span><label class="fieldLabel" for="content">名稱／內容</label><textarea class="field" rows="5" id="content">${esc(e.text)}</textarea><p class="hint">目前選取：${e.id}。內容修改後即時顯示在畫布上。</p></div><div class="prop"><h3>座標與尺寸</h3><div class="fields2"><div>${input("X 座標", "posx", e.x, "number")}</div><div>${input("Y 座標", "posy", e.y, "number")}</div><div>${input("寬度", "w", e.w, "number")}</div><div>${input("高度", "h", e.h, "number")}</div></div></div>`;
+          let t = document.getElementById("content");
+          t.addEventListener("focus", commit, { once: true });
+          t.addEventListener("input", () => {
+            e.text = t.value;
+            render();
+          });
+          ["posx", "posy", "w", "h"].forEach((id) =>
+            document.getElementById(id).addEventListener("change", (ev) => {
+              commit();
+              e[id === "posx" ? "x" : id === "posy" ? "y" : id] = Math.max(
+                0,
+                Number(ev.target.value),
+              );
+              render();
+            }),
+          );
+          return;
+        }
+        panel.innerHTML = `<div class="prop"><h3>目前選取元件</h3><span class="pageBadge">${e.type === "sticky" ? "便條紙" : e.type === "node" ? "自動化節點" : e.type === "frame" ? "框架" : "文字元件"}</span>${input("元件名稱／內容", "elementName", e.text)}</div><div class="prop"><h3>外觀樣式</h3><label class="fieldLabel">背景顏色</label><div class="swatches">${colors.map((c) => `<button class="swatch ${e.color === c ? "on" : ""}" data-color="${c}" style="background:${c}" aria-label="設定背景 ${c}"></button>`).join("")}</div><label class="fieldLabel" for="font">文字大小 <strong id="fontVal">${e.font}px</strong></label><input class="slider" id="font" type="range" min="12" max="32" value="${e.font}"><p class="hint">每個元件具有獨立樣式；不會影響其他元件。</p></div><div class="prop"><h3>位置與尺寸</h3><div class="fields2"><div>${input("X 座標", "posx", e.x, "number")}</div><div>${input("Y 座標", "posy", e.y, "number")}</div><div>${input("寬度", "w", e.w, "number")}</div><div>${input("高度", "h", e.h, "number")}</div></div></div>`;
+        let name = document.getElementById("elementName");
+        name.addEventListener("focus", commit, { once: true });
+        name.addEventListener("input", (ev) => {
+          e.text = ev.target.value;
+          render();
+        });
+        panel.querySelectorAll("[data-color]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              commit();
+              e.color = b.dataset.color;
+              render();
+              properties();
+            }),
+        );
+        let f = document.getElementById("font");
+        f.addEventListener("pointerdown", commit, { once: true });
+        f.oninput = () => {
+          e.font = Number(f.value);
+          document.getElementById("fontVal").textContent = e.font + "px";
+          render();
+        };
+        ["posx", "posy", "w", "h"].forEach((id) =>
+          document.getElementById(id).addEventListener("change", (ev) => {
+            commit();
+            e[id === "posx" ? "x" : id === "posy" ? "y" : id] = Math.max(
+              0,
+              Number(ev.target.value),
+            );
+            render();
+          }),
+        );
+      }
+      function add(type) {
+        commit();
+        let e = {
+          id: type + next++,
+          type,
+          x: 220 + Math.random() * 90,
+          y: 120 + Math.random() * 90,
+          w: type === "frame" ? 280 : type === "node" ? 180 : 195,
+          h: type === "frame" ? 200 : type === "node" ? 105 : 125,
+          text:
+            type === "sticky"
+              ? "雙擊右側內容欄來編輯便條紙"
+              : type === "text"
+                ? "新的文字標題"
+                : type === "frame"
+                  ? "新框架"
+                  : "HTTP POST",
+          color:
+            type === "sticky"
+              ? "#aee8f5"
+              : type === "frame"
+                ? "#d6e2fc"
+                : "#ffffff",
+          font: 16,
+        };
+        elements.push(e);
+        selected = e.id;
+        render();
+        properties();
+        notify(
+          "已新增" +
+            {
+              sticky: "便條紙",
+              text: "文字",
+              frame: "框架",
+              node: "自動化節點",
+            }[type],
+        );
+      }
+      document
+        .querySelectorAll("[data-add]")
+        .forEach((b) => (b.onclick = () => add(b.dataset.add)));
+      document.querySelectorAll("[data-tool]").forEach(
+        (b) =>
+          (b.onclick = () => {
+            document
+              .querySelectorAll("[data-tool]")
+              .forEach((x) => x.classList.remove("active"));
+            b.classList.add("active");
+            tool = b.dataset.tool;
+            notify(
+              tool === "pan"
+                ? "平移工具：此概念稿可使用滾動或縮放查看畫布"
+                : "已切換選取工具",
+            );
+          }),
+      );
+      function duplicate() {
+        let e = find();
+        if (!e) return;
+        commit();
+        let n = { ...e, id: e.type + next++, x: e.x + 35, y: e.y + 35 };
+        elements.push(n);
+        selected = n.id;
+        render();
+        properties();
+      }
+      function remove() {
+        if (!find()) return;
+        commit();
+        elements = elements.filter((e) => e.id !== selected);
+        selected = null;
+        render();
+        properties();
+      }
+      document.getElementById("duplicate").onclick = duplicate;
+      document.getElementById("delete").onclick = remove;
+      function timeTravel(direction) {
+        let from = direction === "undo" ? history : future,
+          to = direction === "undo" ? future : history;
+        if (!from.length) return;
+        to.push(snapshot());
+        elements = JSON.parse(from.pop());
+        selected = null;
+        render();
+        properties();
+      }
+      document.getElementById("undo").onclick = () => timeTravel("undo");
+      document.getElementById("redo").onclick = () => timeTravel("redo");
+      window.addEventListener("keydown", (e) => {
+        if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName))
+          return;
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+          e.preventDefault();
+          timeTravel(e.shiftKey ? "redo" : "undo");
+        } else if (e.key === "Delete" || e.key === "Backspace") remove();
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+          e.preventDefault();
+          duplicate();
+        }
+      });
+      document.querySelectorAll("[data-tab]").forEach(
+        (b) =>
+          (b.onclick = () => {
+            tab = b.dataset.tab;
+            document
+              .querySelectorAll("[data-tab]")
+              .forEach((x) => x.classList.toggle("on", x === b));
+            properties();
+          }),
+      );
+      function setZoom(v) {
+        zoom = Math.min(1.5, Math.max(0.55, v));
+        document.getElementById("zoomText").textContent =
+          Math.round(zoom * 100) + "%";
+        render();
+      }
+      document.getElementById("minus").onclick = () => setZoom(zoom - 0.1);
+      document.getElementById("plus").onclick = () => setZoom(zoom + 0.1);
+      document.getElementById("reset").onclick = () => setZoom(0.85);
+      document.getElementById("invite").onclick = () =>
+        notify("協作邀請為介面示範，尚未連接帳號系統");
+      document.getElementById("run").onclick = () =>
+        notify("流程執行示範：Trigger → HTTP GET → Filter（未發送真實請求）");
+      render();
+      properties();
+    </script>
+    <script src="./automation.js"></script>
+  </body>
+</html>

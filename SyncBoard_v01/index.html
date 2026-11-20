@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SyncBoard｜01 登入</title>
+    <style>
+      :root {
+        font-family:
+          Inter, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+        color: #1c3041;
+        background: #eef4f7;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        border: 0;
+        border-radius: 9px;
+        padding: 10px 14px;
+        background: #087e83;
+        color: #fff;
+        font-weight: 650;
+      }
+      button:hover {
+        filter: brightness(0.94);
+      }
+      button.ghost {
+        background: #eaf3f4;
+        color: #1d5760;
+      }
+      button.outline {
+        border: 1px solid #bfced5;
+        background: white;
+        color: #36505b;
+      }
+      .shell {
+        display: flex;
+        min-height: 100vh;
+      }
+      .side {
+        width: 265px;
+        background: #103b48;
+        color: #e4f2f3;
+        padding: 20px 14px;
+        flex-shrink: 0;
+      }
+      .brand {
+        font-weight: 850;
+        font-size: 23px;
+        padding: 7px 12px 24px;
+      }
+      .brand small {
+        display: block;
+        color: #a7c8c9;
+        font-size: 11px;
+        font-weight: 500;
+        margin-top: 5px;
+      }
+      .nav {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        color: #d5e8e9;
+        font-weight: 500;
+        margin: 3px 0;
+        padding: 10px 12px;
+      }
+      .nav.active {
+        background: #17616a;
+        color: white;
+      }
+      .nav:hover {
+        background: #235967;
+      }
+      .nav span {
+        opacity: 0.7;
+        margin-right: 9px;
+        font-size: 11px;
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+      .top {
+        height: 68px;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 29px;
+        border-bottom: 1px solid #dfe8ed;
+        gap: 15px;
+      }
+      .top h1 {
+        font-size: 19px;
+        margin: 0;
+      }
+      .top .muted {
+        font-size: 12px;
+      }
+      .content {
+        padding: 29px;
+        max-width: 1500px;
+        margin: auto;
+      }
+      .muted {
+        color: #708694;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #0e8086;
+        font-weight: 800;
+      }
+      .heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 15px;
+        margin-bottom: 24px;
+      }
+      .heading h2 {
+        font-size: 27px;
+        margin: 5px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #dce7eb;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 19px #233e4808;
+      }
+      .card h3 {
+        margin: 4px 0 8px;
+      }
+      .stat {
+        font-size: 33px;
+        font-weight: 800;
+        color: #14666e;
+      }
+      .tile {
+        min-height: 158px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .preview {
+        height: 120px;
+        border-radius: 9px;
+        background:
+          radial-gradient(#dae5e9 1px, transparent 1px) 0 0/15px 15px,
+          #f5fbfb;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .note {
+        position: absolute;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: 650;
+        border-radius: 3px;
+        box-shadow: 0 3px 6px #1e394420;
+      }
+      .yellow {
+        background: #fff0a7;
+      }
+      .blue {
+        background: #cbe8ff;
+      }
+      .pink {
+        background: #f9d7ed;
+      }
+      .green {
+        background: #d4efcc;
+      }
+      .purple {
+        background: #e6d7ff;
+      }
+      .form {
+        max-width: 560px;
+      }
+      .field {
+        display: block;
+        margin: 16px 0;
+        color: #4e6571;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .field input,
+      .field select,
+      .field textarea,
+      .search {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cfdee3;
+        border-radius: 8px;
+        background: white;
+        margin-top: 7px;
+        color: #1d3844;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 13px;
+        overflow: hidden;
+      }
+      .table th,
+      .table td {
+        text-align: left;
+        padding: 17px;
+        border-bottom: 1px solid #e8eef0;
+      }
+      .table th {
+        font-size: 12px;
+        color: #6f8590;
+        background: #f7fbfc;
+      }
+      .tag {
+        display: inline-block;
+        border-radius: 15px;
+        padding: 5px 10px;
+        background: #e6f4f2;
+        color: #0f6d68;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .canvas {
+        height: 590px;
+        position: relative;
+        background:
+          radial-gradient(#d4e3e7 1.15px, transparent 1.15px) 0 0/20px 20px,
+          #fff;
+        border: 1px solid #d6e4e8;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .toolbar {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        padding: 8px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 4px 20px #21495620;
+      }
+      .toolbar button {
+        font-size: 12px;
+        padding: 10px;
+        background: #edf6f7;
+        color: #285360;
+      }
+      .toolnote {
+        position: absolute;
+        padding: 19px;
+        min-width: 130px;
+        min-height: 90px;
+        box-shadow: 0 6px 14px #1234;
+        cursor: move;
+        font-weight: 750;
+      }
+      .arrow {
+        position: absolute;
+        font-size: 34px;
+        color: #608694;
+      }
+      .people {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        background: #fff;
+        padding: 10px 15px;
+        border-radius: 20px;
+        box-shadow: 0 3px 12px #1232;
+      }
+      .cursor {
+        position: absolute;
+        color: #e44d8b;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .wide {
+        grid-column: span 2;
+      }
+      .modalbg {
+        position: fixed;
+        inset: 0;
+        background: #112b3b88;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        z-index: 10;
+      }
+      .modal {
+        width: min(540px, 100%);
+        padding: 25px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 30px 80px #17333c77;
+      }
+      .modal h3 {
+        margin-top: 0;
+      }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 20px;
+        background: #eef6f7;
+        color: #225c64;
+        display: inline-block;
+        margin: 4px;
+      }
+      .banner {
+        background: #dff4f0;
+        border: 1px solid #9ed9d0;
+        border-radius: 10px;
+        padding: 15px;
+        color: #155b58;
+        margin-bottom: 20px;
+      }
+      .error {
+        background: #fff1e8;
+        border-color: #efc9b5;
+        color: #8b4b22;
+      }
+      .timeline {
+        border-left: 2px solid #b9d6d6;
+        margin-left: 10px;
+        padding-left: 25px;
+      }
+      .timeline .card {
+        margin: 14px 0;
+      }
+      .auth {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 550px;
+        max-width: 1080px;
+        margin: 10vh auto;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .authhero {
+        background: #0d6571;
+        color: #fff;
+        padding: 70px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .authhero h2 {
+        font-size: 46px;
+      }
+      .authform {
+        padding: 65px 55px;
+      }
+      .small {
+        font-size: 12px;
+      }
+      .status {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        background: #173d47;
+        color: white;
+        padding: 13px 18px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px #1236;
+        z-index: 12;
+      }
+      .mobile {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        .side {
+          width: 74px;
+          padding: 10px 4px;
+        }
+        .brand {
+          font-size: 13px;
+          padding: 10px 4px;
+        }
+        .brand small,
+        .nav span,
+        .nav .label {
+          display: none;
+        }
+        .nav {
+          text-align: center;
+          font-size: 13px;
+        }
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .content {
+          padding: 18px;
+        }
+        .auth {
+          grid-template-columns: 1fr;
+        }
+        .authhero {
+          padding: 25px;
+        }
+        .authform {
+          padding: 25px;
+        }
+        .canvas {
+          height: 490px;
+        }
+      }
+      @media (max-width: 600px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .wide {
+          grid-column: auto;
+        }
+        .side {
+          display: none;
+        }
+        .mobile {
+          display: flex;
+          overflow: auto;
+          gap: 7px;
+          padding: 7px;
+          background: #123f49;
+        }
+        .mobile button {
+          white-space: nowrap;
+          background: #266471;
+        }
+        .top {
+          padding: 10px;
+          height: auto;
+        }
+        .heading {
+          align-items: start;
+          flex-direction: column;
+        }
+        .content {
+          padding: 12px;
+        }
+        .table {
+          font-size: 12px;
+        }
+        .table td,
+        .table th {
+          padding: 8px;
+        }
+        .auth {
+          margin: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const screens = [
+        "登入",
+        "註冊／忘記密碼",
+        "工作區首頁",
+        "建立工作區",
+        "成員管理",
+        "接受邀請",
+        "白板列表",
+        "探索模板",
+        "建立白板",
+        "白板編輯器",
+        "即時協作",
+        "流程圖",
+        "分享與權限",
+        "留言",
+        "版本歷史",
+        "匯入／匯出",
+        "通知中心",
+        "設定／異常",
+      ];
+      let page = 0,
+        modal = "",
+        toast = "",
+        boardCount = 3,
+        workspace = "畢業專題團隊",
+        boardTitle = "產品功能規劃",
+        role = "編輯者",
+        saved = true,
+        notes = 3,
+        invite = "",
+        filter = "全部";
+      const $ = (s) => document.querySelector(s),
+        esc = (s) =>
+          String(s).replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+      function go(i) {
+        page = i;
+        modal = "";
+        render();
+        window.scrollTo(0, 0);
+      }
+      function say(s) {
+        toast = s;
+        render();
+        setTimeout(() => {
+          toast = "";
+          render();
+        }, 2600);
+      }
+      function openModal(s) {
+        modal = s;
+        render();
+      }
+      function changeRole(r) {
+        role = r;
+        say("示範：角色已切換為 " + r);
+      }
+      function btn(label, action, cls = "") {
+        return (
+          '<button class="' +
+          cls +
+          '" onclick="' +
+          action +
+          '">' +
+          label +
+          "</button>"
+        );
+      }
+      function searchBoards(term) {
+        document
+          .querySelectorAll(".boardgrid>.card")
+          .forEach(
+            (x) => (x.style.display = x.innerText.includes(term) ? "" : "none"),
+          );
+      }
+      function heading(name, desc, action = "") {
+        return (
+          '<div class="heading"><div><div class="eyebrow">SYNCBOARD / ' +
+          String(page + 1).padStart(2, "0") +
+          "</div><h2>" +
+          name +
+          '</h2><div class="muted">' +
+          desc +
+          "</div></div>" +
+          action +
+          "</div>"
+        );
+      }
+      function preview(i) {
+        const pos = [
+          ["8%", "12%"],
+          ["58%", "36%"],
+          ["30%", "63%"],
+        ];
+        return (
+          '<div class="preview">' +
+          [0, 1, 2]
+            .map(
+              (n) =>
+                '<div class="note ' +
+                ["yellow", "blue", "pink"][n] +
+                '" style="left:' +
+                pos[n][0] +
+                ";top:" +
+                pos[n][1] +
+                '">' +
+                ["功能想法", "流程整理", "討論項目"][n] +
+                "</div>",
+            )
+            .join("") +
+          "</div>"
+        );
+      }
+      function boardcard(t, i) {
+        return (
+          '<div class="card tile" onclick="go(9)" style="cursor:pointer">' +
+          preview(i) +
+          "<h3>" +
+          t +
+          '</h3><div class="muted small">最近編輯：今天 · 私人工作區</div></div>'
+        );
+      }
+      function content() {
+        switch (page) {
+          case 0:
+            return (
+              '<div class="auth"><div class="authhero"><div>◈ SyncBoard</div><h2>一起思考，<br>共同創造。</h2><p>白板、流程圖、便利貼與即時多人協作。</p></div><div class="authform"><h2>歡迎回來</h2><label class="field">電子郵件<input value="demo@example.com"></label><label class="field">密碼<input type="password" value="12345678"></label>' +
+              btn("登入 SyncBoard", "go(2)") +
+              "<p>" +
+              btn("建立新帳號", "go(1)", "ghost") +
+              " " +
+              btn("忘記密碼", "openModal('忘記密碼')", "outline") +
+              '</p><p class="muted small">原型展示帳號，不會進行實際驗證。</p></div></div>'
+            );
+          case 1:
+            return (
+              '<div class="auth"><div class="authhero"><h2>加入創作<br>工作空間</h2><p>建立你的 SyncBoard 帳號。</p></div><div class="authform"><h2>建立帳號</h2><label class="field">姓名<input placeholder="你的姓名"></label><label class="field">電子郵件<input placeholder="name@example.com"></label><label class="field">密碼<input type="password" placeholder="至少 8 字元"></label>' +
+              btn("註冊並繼續", "go(2)") +
+              "<p>" +
+              btn("返回登入", "go(0)", "ghost") +
+              "</p></div></div>"
+            );
+          case 2:
+            return (
+              heading(
+                "工作區首頁",
+                "集中管理你的團隊、白板與近期活動。",
+                btn("+ 建立工作區", "go(3)"),
+              ) +
+              '<div class="banner">👋 歡迎回來！目前工作區：<b>' +
+              esc(workspace) +
+              "</b>　" +
+              btn("管理成員", "go(4)", "ghost") +
+              '</div><div class="grid"><div class="card"><div class="muted">白板總數</div><div class="stat">' +
+              boardCount +
+              '</div></div><div class="card"><div class="muted">團隊成員</div><div class="stat">5</div></div><div class="card"><div class="muted">在線協作者</div><div class="stat">3</div></div></div><h3>最近使用的白板</h3><div class="grid">' +
+              ["產品功能規劃", "系統架構流程圖", "設計討論"]
+                .map(boardcard)
+                .join("") +
+              '</div><div class="actions">' +
+              btn("探索模板", "go(7)") +
+              btn("開啟白板列表", "go(6)", "ghost") +
+              "</div>"
+            );
+          case 3:
+            return (
+              heading("建立工作區", "工作區可以有多張白板與多位協作成員。") +
+              '<div class="card form"><label class="field">工作區名稱<input id="wsname" value="新產品研發團隊"></label><label class="field">工作區描述<textarea rows="3">跨部門共同整理想法與流程</textarea></label><label class="field">存取方式<select><option>私人工作區（僅受邀成員）</option></select></label><div class="actions">' +
+              btn("建立工作區", "workspace=$('#wsname').value;go(2)") +
+              btn("取消", "go(2)", "ghost") +
+              "</div></div>"
+            );
+          case 4:
+            return (
+              heading(
+                "成員管理",
+                "管理團隊邀請、角色及存取權限。",
+                btn("+ 邀請成員", "openModal('邀請成員')"),
+              ) +
+              '<div class="card"><table class="table"><thead><tr><th>成員</th><th>Email</th><th>角色</th><th>操作</th></tr></thead><tbody>' +
+              [
+                ["小明", "ming@example.com", "擁有者"],
+                ["小華", "hua@example.com", "管理員"],
+                ["小美", "mei@example.com", "編輯者"],
+                ["阿傑", "jie@example.com", "編輯者"],
+                ["小王", "wang@example.com", "檢視者"],
+              ]
+                .map(
+                  (m, i) =>
+                    "<tr><td>👤 " +
+                    m[0] +
+                    "</td><td>" +
+                    m[1] +
+                    '</td><td><span class="tag">' +
+                    m[2] +
+                    "</span></td><td>" +
+                    btn(
+                      i ? "調整權限" : "擁有者",
+                      "openModal('成員權限')",
+                      "ghost",
+                    ) +
+                    "</td></tr>",
+                )
+                .join("") +
+              '</tbody></table></div><div class="actions">' +
+              btn("查看邀請接受畫面", "go(5)", "outline") +
+              "</div>"
+            );
+          case 5:
+            return (
+              heading("接受工作區邀請", "受邀人開啟邀請連結時看到的畫面。") +
+              '<div class="card form"><h2>你收到了一封邀請 ✉</h2><p>小明邀請你加入 <b>' +
+              esc(workspace) +
+              '</b></p><p>角色：<span class="tag">編輯者</span></p><p class="muted">邀請連結具有期限，正式系統須驗證邀請 token 與使用者身分。</p>' +
+              btn("接受邀請", "go(6)") +
+              " " +
+              btn("拒絕", "go(2)", "outline") +
+              "</div>"
+            );
+          case 6:
+            return (
+              heading(
+                "白板列表",
+                "搜尋、整理並建立所有白板。",
+                btn("+ 新建白板", "go(8)"),
+              ) +
+              '<div class="row" style="margin-bottom:18px"><input class="search" style="max-width:320px" placeholder="搜尋白板..." oninput="searchBoards(this.value)">' +
+              btn("探索模板", "go(7)", "ghost") +
+              '</div><div class="grid boardgrid">' +
+              [
+                "產品功能規劃",
+                "系統架構流程圖",
+                "設計討論",
+                ...(boardCount > 3 ? ["新建白板"] : []),
+              ]
+                .map(boardcard)
+                .join("") +
+              "</div>"
+            );
+          case 7:
+            return (
+              heading(
+                "探索模板",
+                "依照工作需求快速建立視覺化白板。",
+                btn("空白白板", "go(8)", "ghost"),
+              ) +
+              '<div class="row" style="margin-bottom:18px">' +
+              ["全部", "腦力激盪", "流程圖", "專案管理", "分析"]
+                .map((x) =>
+                  btn(
+                    x,
+                    "filter='" + x + "';render()",
+                    x === filter ? "" : "ghost",
+                  ),
+                )
+                .join("") +
+              '</div><div class="grid">' +
+              [
+                ["腦力激盪", "腦力激盪"],
+                ["心智圖", "腦力激盪"],
+                ["基本流程圖", "流程圖"],
+                ["Kanban 看板", "專案管理"],
+                ["SWOT 分析", "分析"],
+                ["優先順序矩陣", "分析"],
+                ["使用者旅程", "專案管理"],
+                ["專案時間線", "專案管理"],
+              ]
+                .filter((x) => filter === "全部" || x[1] === filter)
+                .map(
+                  (t, i) =>
+                    '<div class="card">' +
+                    preview(i) +
+                    "<h3>" +
+                    t[0] +
+                    '</h3><p class="muted small">' +
+                    t[1] +
+                    " · 可直接套用與修改</p>" +
+                    btn("預覽", "openModal('模板預覽：'+t[0]+'')", "ghost") +
+                    " " +
+                    btn(
+                      "使用模板",
+                      "boardTitle='" + t[0] + "';boardCount++;go(9)",
+                    ) +
+                    "</div>",
+                )
+                .join("") +
+              "</div>"
+            );
+          case 8:
+            return (
+              heading("建立白板", "選擇空白畫布或套用系統模板。") +
+              '<div class="grid"><div class="card wide"><h3>空白白板</h3><p class="muted">自由新增便利貼、文字、圖形與連線。</p><label class="field">白板名稱<input id="bname" value="我的新白板"></label>' +
+              btn(
+                "建立空白白板",
+                "boardTitle=$('#bname').value;boardCount++;go(9)",
+              ) +
+              '</div><div class="card">' +
+              preview(0) +
+              "<h3>使用模板</h3>" +
+              btn("探索模板", "go(7)") +
+              "</div></div>"
+            );
+          case 9:
+          case 10:
+          case 11:
+            return (
+              heading(
+                page === 9
+                  ? "白板編輯器"
+                  : page === 10
+                    ? "即時多人協作"
+                    : "流程圖編輯",
+                page === 10
+                  ? "同一白板多個使用者在線與共同編輯。"
+                  : "選取、移動、連接與儲存物件。",
+                btn("分享", "go(12)") + " " + btn("版本", "go(14)", "ghost"),
+              ) +
+              '<div class="banner">◉ ' +
+              esc(boardTitle) +
+              '　<span class="muted">｜' +
+              (saved ? "✓ 已儲存" : "● 尚未儲存") +
+              "｜縮放 100%｜" +
+              role +
+              " 模式</span>　" +
+              btn("模擬儲存", "saved=true;say('已儲存（原型）')", "ghost") +
+              '</div><div class="canvas"><div class="toolbar">' +
+              [
+                ["↖", "選取"],
+                ["✋", "移動"],
+                ["▣", "便利貼"],
+                ["T", "文字"],
+                ["□", "圖形"],
+                ["→", "連線"],
+                ["✎", "畫筆"],
+                ["↶", "復原"],
+                ["✕", "刪除"],
+              ]
+                .map((t) =>
+                  btn(t[0], "openModal('工具：" + t[1] + "')", "ghost"),
+                )
+                .join("") +
+              '</div><div class="people">🟢 小明　🔵 小美　🟣 阿傑</div>' +
+              (page === 11
+                ? '<div class="toolnote green" style="left:22%;top:33%;border-radius:35px">開始</div><div class="arrow" style="left:43%;top:38%">⟶</div><div class="toolnote blue" style="left:55%;top:33%">確認需求</div><div class="toolnote purple" style="left:55%;top:66%">條件判斷 ◆</div>'
+                : Array.from(
+                    { length: notes },
+                    (_, i) =>
+                      '<div class="toolnote ' +
+                      ["yellow", "blue", "pink", "green", "purple"][i % 5] +
+                      '" style="left:' +
+                      (20 + (i % 3) * 23) +
+                      "%;top:" +
+                      (26 + Math.floor(i / 3) * 28) +
+                      '%">' +
+                      [
+                        "新功能想法",
+                        "使用者流程",
+                        "需要討論",
+                        "下一步",
+                        "待確認",
+                      ][i % 5] +
+                      "</div>",
+                  ).join("") +
+                  '<div class="arrow" style="left:44%;top:42%">⟶</div>') +
+              (page === 10
+                ? '<div class="cursor" style="left:50%;top:21%">➤ 小美 正在編輯</div><div class="cursor" style="left:74%;top:66%;color:#168b83">➤ 阿傑</div>'
+                : "") +
+              '</div><div class="actions">' +
+              btn("+ 新增便利貼", "notes++;saved=false;render()") +
+              btn("即時協作展示", "go(10)", "ghost") +
+              btn("流程圖", "go(11)", "ghost") +
+              btn("留言", "go(13)", "ghost") +
+              btn("匯出", "go(15)", "ghost") +
+              "</div>"
+            );
+          case 12:
+            return (
+              heading("分享與權限", "管理存取連結與個別使用者的白板權限。") +
+              '<div class="card form"><h3>分享 ' +
+              esc(boardTitle) +
+              '</h3><label class="field">邀請 Email<input id="sharemail" placeholder="teammate@example.com"></label><label class="field">受邀權限<select id="shareRole"><option>編輯者</option><option>檢視者</option></select></label>' +
+              btn("傳送邀請（示範）", "say('已加入示範邀請清單')") +
+              '<hr style="border:0;border-top:1px solid #e3edef;margin:22px 0"><h3>連結分享</h3><p class="muted">目前：僅受邀成員可使用</p><label class="field">一般連結權限<select><option>受限制</option><option>取得連結者可檢視</option></select></label>' +
+              btn(
+                "複製示範連結",
+                "navigator.clipboard?.writeText('https://example.invalid/board/demo');say('已複製示範連結')",
+                "ghost",
+              ) +
+              '<p class="muted small">正式版需後端權限檢查，不能只依靠前端選單。</p></div>'
+            );
+          case 13:
+            return (
+              heading(
+                "白板留言",
+                "針對討論與修改留下可追蹤的脈絡。",
+                btn("+ 新增留言", "openModal('新增留言')"),
+              ) +
+              '<div class="grid"><div class="card"><h3>小華 · 10:24</h3><p>這個流程的審核條件要再確認。</p><span class="tag">未解決</span><div class="actions">' +
+              btn("回覆", "openModal('回覆留言')", "ghost") +
+              btn("標示已解決", "say('留言已標記為解決')", "outline") +
+              '</div></div><div class="card"><h3>小明 · 昨天</h3><p>新增白板分享的唯讀角色。</p><span class="tag">已解決</span></div></div>'
+            );
+          case 14:
+            return (
+              heading(
+                "版本歷史",
+                "預覽先前的白板快照，並建立還原紀錄。",
+                btn("建立快照", "say('示範快照已建立')"),
+              ) +
+              '<div class="timeline">' +
+              [
+                ["v12 · 最新版本", "今天 14:25 · 小明"],
+                ["v11 · 修改流程", "今天 11:15 · 小美"],
+                ["v10 · 初始規劃", "昨天 16:40 · 小明"],
+              ]
+                .map(
+                  (v) =>
+                    '<div class="card"><h3>' +
+                    v[0] +
+                    '</h3><p class="muted">' +
+                    v[1] +
+                    '</p><div class="actions">' +
+                    btn("預覽", "openModal('版本預覽')", "ghost") +
+                    btn("還原此版本", "openModal('確認還原')", "outline") +
+                    "</div></div>",
+                )
+                .join("") +
+              "</div>"
+            );
+          case 15:
+            return (
+              heading("匯入／匯出", "下載白板或匯入相容資料。") +
+              '<div class="grid">' +
+              [
+                ["JSON", "保留物件與版面資料，方便備份與再匯入"],
+                ["PNG", "將當前畫布輸出成圖片"],
+                ["匯入 JSON", "檢查格式及版本後建立白板"],
+              ]
+                .map(
+                  (v, i) =>
+                    '<div class="card"><h3>' +
+                    v[0] +
+                    '</h3><p class="muted">' +
+                    v[1] +
+                    "</p>" +
+                    btn(
+                      i === 2 ? "選擇檔案" : "匯出 " + v[0],
+                      "openModal('" + v[0] + "')",
+                    ) +
+                    "</div>",
+                )
+                .join("") +
+              '</div><div class="banner" style="margin-top:24px">原型僅展示操作，不會產生真正的白板匯出檔。</div>'
+            );
+          case 16:
+            return (
+              heading("通知中心", "集中查看邀請、提及與留言提醒。") +
+              '<div class="card">' +
+              [
+                ["📨", "小華邀請你加入產品企劃工作區", "5 分鐘前"],
+                ["💬", "小美在系統流程白板留言", "今天 10:21"],
+                ["🧩", "阿傑分享了一張新的流程圖", "昨天"],
+              ]
+                .map(
+                  (v) =>
+                    '<div class="row" style="padding:15px;border-bottom:1px solid #e7eff1"><div style="font-size:22px">' +
+                    v[0] +
+                    '</div><div style="flex:1"><b>' +
+                    v[1] +
+                    '</b><div class="muted small">' +
+                    v[2] +
+                    "</div></div>" +
+                    btn("查看", "go(5)", "ghost") +
+                    "</div>",
+                )
+                .join("") +
+              "</div>"
+            );
+          case 17:
+            return (
+              heading(
+                "設定與異常狀態",
+                "個人偏好、工作區設定、權限錯誤及斷線設計。",
+              ) +
+              '<div class="grid"><div class="card"><h3>個人設定</h3><label class="field">顯示名稱<input value="小明"></label><label class="field">語言<select><option>繁體中文</option><option>English</option></select></label>' +
+              btn("儲存偏好", "say('偏好已更新（示範）')") +
+              '</div><div class="card"><h3>工作區設定</h3><label class="field">工作區名稱<input value="' +
+              esc(workspace) +
+              '"></label><p class="muted">只有 Owner／Admin 可以修改。</p>' +
+              btn("管理成員", "go(4)") +
+              '</div><div class="card"><h3>系統異常預覽</h3><p class="muted">演示 403、404、斷線與儲存失敗的提示。</p>' +
+              btn("顯示 403", "openModal('403 無權限')", "ghost") +
+              " " +
+              btn("模擬斷線", "openModal('網路已中斷')", "outline") +
+              "</div></div>"
+            );
+        }
+      }
+      function modalHtml() {
+        if (!modal) return "";
+        let special = modal.includes("還原")
+          ? "此操作將以選定快照產生新版本，請確認。"
+          : modal.includes("權限")
+            ? "工作區角色與白板權限可分開設定。"
+            : modal.includes("模板")
+              ? "預覽此模板的版面、便利貼與圖形。"
+              : modal.includes("斷線")
+                ? "連線中斷。請檢查網路，重新連線後需同步最新狀態。"
+                : "這是操作與版面示意。正式版會依此建立對應表單、API 與驗證。";
+        return (
+          '<div class="modalbg" onclick="if(event.target===this){modal=\'\';render()}"><div class="modal"><h3>' +
+          esc(modal) +
+          '</h3><p class="muted">' +
+          special +
+          "</p>" +
+          (modal.includes("邀請") || modal.includes("留言")
+            ? '<label class="field">內容<input id="modalinput" placeholder="輸入內容"></label>'
+            : "") +
+          '<div class="actions">' +
+          btn("確認", "modal=\'\';say('示範操作已完成')") +
+          btn("取消", "modal=\'\';render()", "ghost") +
+          "</div></div></div>"
+        );
+      }
+      function render() {
+        const side =
+          '<aside class="side"><div class="brand">◈ SyncBoard<small>MIRO-INSPIRED PROJECT</small></div>' +
+          screens
+            .map(
+              (s, i) =>
+                '<button class="nav ' +
+                (i === page ? "active" : "") +
+                '" onclick="go(' +
+                i +
+                ')"><span>' +
+                String(i + 1).padStart(2, "0") +
+                '</span><span class="label">' +
+                s +
+                '</span><span class="num" style="display:none">' +
+                (i + 1) +
+                "</span></button>",
+            )
+            .join("") +
+          "</aside>";
+        $("#app").innerHTML =
+          '<div class="mobile">' +
+          screens
+            .map((s, i) => btn(i + 1 + ". " + s, "go(" + i + ")"))
+            .join("") +
+          '</div><div class="shell">' +
+          side +
+          '<div class="main"><header class="top"><h1>' +
+          esc(screens[page]) +
+          '</h1><div class="row"><span class="muted small">畫面原型 · 非正式系統</span>' +
+          btn("🔔", "go(16)", "ghost") +
+          btn("個人設定", "go(17)", "ghost") +
+          '</div></header><main class="content">' +
+          content() +
+          "</main></div></div>" +
+          modalHtml() +
+          (toast ? '<div class="status">' + esc(toast) + "</div>" : "");
+      }
+      render();
+    </script>
+    <script>
+      /* Multi-team prototype. All data is scoped by team id in local browser storage. */
+      const TEAM_KEY = "syncboard_multi_team_v2";
+      const demoTeams = [
+        {
+          id: "team-graduation",
+          name: "畢業專題團隊",
+          description: "前端專題規劃與協作",
+          owner: "我",
+          members: [
+            { name: "我", email: "demo@example.com", role: "擁有者" },
+            { name: "小華", email: "hua@example.com", role: "管理員" },
+            { name: "小美", email: "mei@example.com", role: "編輯者" },
+            { name: "阿傑", email: "jie@example.com", role: "編輯者" },
+            { name: "小王", email: "wang@example.com", role: "檢視者" },
+          ],
+          boards: [
+            { id: "b1", title: "產品功能規劃" },
+            { id: "b2", title: "系統架構流程圖" },
+            { id: "b3", title: "設計討論" },
+          ],
+        },
+        {
+          id: "team-design",
+          name: "UI／UX 設計小組",
+          description: "受邀加入 · 視覺與使用者體驗",
+          owner: "小華",
+          members: [
+            { name: "小華", email: "hua@example.com", role: "擁有者" },
+            { name: "我", email: "demo@example.com", role: "編輯者" },
+            { name: "小美", email: "mei@example.com", role: "編輯者" },
+          ],
+          boards: [
+            { id: "b4", title: "首頁 Wireframe" },
+            { id: "b5", title: "設計系統" },
+          ],
+        },
+      ];
+      function safeLoad() {
+        try {
+          const x = JSON.parse(localStorage.getItem(TEAM_KEY));
+          return x && Array.isArray(x.teams) && x.teams.length ? x : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      let teamState = safeLoad() || {
+        activeId: "team-graduation",
+        teams: demoTeams,
+      };
+      function saveTeams() {
+        try {
+          localStorage.setItem(TEAM_KEY, JSON.stringify(teamState));
+        } catch (e) {}
+      }
+      function activeTeam() {
+        return (
+          teamState.teams.find((t) => t.id === teamState.activeId) ||
+          teamState.teams[0]
+        );
+      }
+      function syncTeam() {
+        const t = activeTeam();
+        teamState.activeId = t.id;
+        workspace = t.name;
+        boardCount = t.boards.length;
+        boardTitle = t.boards[0]?.title || "尚未建立白板";
+        notes = 3;
+        saved = true;
+      }
+      function switchTeam(id) {
+        if (!teamState.teams.some((t) => t.id === id)) return;
+        teamState.activeId = id;
+        saveTeams();
+        syncTeam();
+        go(2);
+      }
+      function createTeam() {
+        const name = $("#newTeamName")?.value.trim(),
+          description = $("#newTeamDesc")?.value.trim() || "";
+        if (!name) return say("請輸入團隊名稱");
+        const id = "team-" + Date.now().toString(36);
+        teamState.teams.push({
+          id,
+          name,
+          description,
+          owner: "我",
+          members: [{ name: "我", email: "demo@example.com", role: "擁有者" }],
+          boards: [],
+        });
+        teamState.activeId = id;
+        saveTeams();
+        syncTeam();
+        go(2);
+      }
+      function joinTeam() {
+        const code = $("#joinTeamCode")?.value.trim().toUpperCase();
+        if (!code) return say("請輸入邀請代碼");
+        const t = teamState.teams.find((t) => teamCode(t.id) === code);
+        if (!t) return say("找不到邀請代碼；原型只支援本瀏覽器的示範團隊");
+        teamState.activeId = t.id;
+        saveTeams();
+        syncTeam();
+        go(2);
+      }
+      function teamCode(id) {
+        return (
+          "SYNC-" +
+          id
+            .replace(/[^a-z0-9]/gi, "")
+            .slice(-6)
+            .toUpperCase()
+        );
+      }
+      function copyTeamInvite() {
+        const url =
+          location.origin +
+          location.pathname +
+          "?invite=" +
+          encodeURIComponent(teamCode(activeTeam().id));
+        navigator.clipboard
+          ?.writeText(url)
+          .then(() => say("已複製團隊示範邀請連結"))
+          .catch(() => say(url));
+      }
+      function addMember() {
+        const name = $("#memberName")?.value.trim(),
+          email = $("#memberEmail")?.value.trim(),
+          role = $("#memberRole")?.value;
+        if (!name || !email) return say("請填寫姓名與 Email");
+        const t = activeTeam();
+        if (
+          t.members.some((m) => m.email.toLowerCase() === email.toLowerCase())
+        )
+          return say("此成員已在團隊中");
+        t.members.push({ name, email, role });
+        saveTeams();
+        render();
+        say("已新增示範成員（沒有實際寄送邀請）");
+      }
+      function removeMember(email) {
+        const t = activeTeam();
+        if (email === "demo@example.com" && t.owner === "我")
+          return say("團隊擁有者不可移除自己");
+        t.members = t.members.filter((m) => m.email !== email);
+        saveTeams();
+        render();
+      }
+      function createTeamBoard() {
+        const name = $("#teamBoardName")?.value.trim();
+        if (!name) return say("請輸入白板名稱");
+        const t = activeTeam();
+        t.boards.push({ id: "board-" + Date.now(), title: name });
+        saveTeams();
+        boardTitle = name;
+        go(9);
+      }
+      function createTemplateBoard(title) {
+        const t = activeTeam();
+        t.boards.push({ id: "board-" + Date.now(), title });
+        saveTeams();
+        boardTitle = title;
+        notes = 3;
+        go(9);
+      }
+      function openTeamBoard(id) {
+        const board = activeTeam().boards.find((b) => b.id === id);
+        if (!board) return;
+        boardTitle = board.title;
+        notes = board.notes ?? 3;
+        go(9);
+      }
+      function teamBadge() {
+        return (
+          '<span class="tag">' +
+          esc(activeTeam().owner === "我" ? "我建立的團隊" : "受邀加入的團隊") +
+          "</span>"
+        );
+      }
+      function teamBoards() {
+        const t = activeTeam();
+        return t.boards.length
+          ? '<div class="grid boardgrid">' +
+              t.boards
+                .map(
+                  (b, i) =>
+                    '<div class="card tile" onclick="openTeamBoard(' +
+                    JSON.stringify(b.id).replace(/"/g, "&quot;") +
+                    ')" style="cursor:pointer">' +
+                    preview(i) +
+                    "<h3>" +
+                    esc(b.title) +
+                    '</h3><div class="muted small">' +
+                    esc(t.name) +
+                    " · 團隊專屬白板</div></div>",
+                )
+                .join("") +
+              "</div>"
+          : '<div class="card"><h3>目前沒有白板</h3><p class="muted">這個團隊的白板與其他團隊獨立。建立第一張吧！</p>' +
+              btn("建立白板", "go(8)") +
+              "</div>";
+      }
+      const originalButton = btn;
+      btn = function (label, action, cls = "") {
+        return originalButton(label, action.replace(/"/g, "&quot;"), cls);
+      };
+      const originalContent = content;
+      content = function () {
+        const t = activeTeam();
+        switch (page) {
+          case 2:
+            return (
+              heading(
+                "我的團隊與工作空間",
+                "一個帳號可以建立及加入多個團隊；切換團隊後只顯示所選團隊的內容。",
+                btn("+ 建立團隊", "go(3)"),
+              ) +
+              '<div class="banner"><b>目前團隊：' +
+              esc(t.name) +
+              "</b>　" +
+              teamBadge() +
+              '<p style="margin-bottom:0">' +
+              esc(t.description || "專屬的團隊工作空間") +
+              '</p></div><div class="grid"><div class="card"><div class="muted">我所屬的團隊</div><div class="stat">' +
+              teamState.teams.length +
+              '</div></div><div class="card"><div class="muted">目前團隊成員</div><div class="stat">' +
+              t.members.length +
+              '</div></div><div class="card"><div class="muted">目前團隊白板</div><div class="stat">' +
+              t.boards.length +
+              '</div></div></div><h3>切換團隊</h3><div class="grid">' +
+              teamState.teams
+                .map(
+                  (team) =>
+                    '<div class="card team-choice ' +
+                    (team.id === t.id ? "selected-team" : "") +
+                    '"><div class="row"><h3 style="flex:1">' +
+                    esc(team.name) +
+                    "</h3>" +
+                    (team.id === t.id
+                      ? '<span class="tag">目前使用</span>'
+                      : "") +
+                    '</div><p class="muted">' +
+                    esc(team.description || "團隊工作空間") +
+                    '</p><p class="small muted">' +
+                    team.members.length +
+                    " 位成員 · " +
+                    team.boards.length +
+                    " 張白板</p>" +
+                    btn(
+                      team.id === t.id ? "進入目前團隊" : "切換至此團隊",
+                      "switchTeam(" + JSON.stringify(team.id) + ")",
+                      team.id === t.id ? "ghost" : "",
+                    ) +
+                    "</div>",
+                )
+                .join("") +
+              '</div><div class="actions">' +
+              btn("+ 建立新團隊", "go(3)") +
+              btn("加入別人的團隊", "go(5)", "ghost") +
+              btn("管理目前團隊成員", "go(4)", "outline") +
+              "</div><h3>目前團隊的白板</h3>" +
+              teamBoards()
+            );
+          case 3:
+            return (
+              heading(
+                "建立新團隊",
+                "每個團隊都擁有獨立成員、工作空間與白板。",
+              ) +
+              '<div class="card form"><label class="field">團隊名稱<input id="newTeamName" placeholder="例如：產品研發部"></label><label class="field">團隊說明<input id="newTeamDesc" placeholder="例如：產品規劃與設計協作"></label><div class="actions">' +
+              btn("建立團隊並切換", "createTeam()") +
+              btn("取消", "go(2)", "ghost") +
+              "</div></div>"
+            );
+          case 4:
+            return (
+              heading(
+                "團隊成員管理",
+                "每個團隊有自己的成員名單；目前團隊：" + t.name,
+                btn("分享邀請連結", "copyTeamInvite()"),
+              ) +
+              '<div class="card"><h3>' +
+              esc(t.name) +
+              " · " +
+              t.members.length +
+              ' 位成員</h3><div style="overflow-x:auto"><table class="table"><thead><tr><th>姓名</th><th>Email</th><th>角色</th><th>操作</th></tr></thead><tbody>' +
+              t.members
+                .map(
+                  (m) =>
+                    "<tr><td>" +
+                    esc(m.name) +
+                    "</td><td>" +
+                    esc(m.email) +
+                    '</td><td><span class="tag">' +
+                    esc(m.role) +
+                    "</span></td><td>" +
+                    btn(
+                      "移除",
+                      "removeMember(" + JSON.stringify(m.email) + ")",
+                      "ghost",
+                    ) +
+                    "</td></tr>",
+                )
+                .join("") +
+              '</tbody></table></div></div><div class="card form" style="margin-top:18px"><h3>新增示範成員</h3><label class="field">姓名<input id="memberName" placeholder="例如：小明"></label><label class="field">Email<input id="memberEmail" type="email" placeholder="name@example.com"></label><label class="field">角色<select id="memberRole"><option>編輯者</option><option>檢視者</option><option>管理員</option></select></label>' +
+              btn("新增成員", "addMember()") +
+              '<p class="muted small">此處為前端操作示意，不會寄送真正邀請。</p></div>'
+            );
+          case 5:
+            return (
+              heading(
+                "加入別人的團隊",
+                "可透過團隊邀請代碼加入。實際跨帳號邀請需後端服務。",
+              ) +
+              '<div class="card form"><h3>輸入團隊邀請代碼</h3><label class="field">邀請代碼<input id="joinTeamCode" placeholder="例如：SYNC-XXXXXX"></label><div class="actions">' +
+              btn("加入團隊", "joinTeam()") +
+              btn("返回我的團隊", "go(2)", "ghost") +
+              '</div><p class="muted small">目前為單一瀏覽器原型：可加入本機示範團隊，但不同使用者尚不能透過此連結真正共用資料。</p></div><div class="card form" style="margin-top:18px"><h3>目前團隊的示範邀請</h3><p>邀請碼：<code>' +
+              teamCode(t.id) +
+              "</code></p>" +
+              btn("複製邀請連結", "copyTeamInvite()", "ghost") +
+              "</div>"
+            );
+          case 6:
+            return (
+              heading(
+                "團隊白板列表",
+                "僅顯示「" + t.name + "」的白板，不混入其他團隊資料。",
+                btn("+ 新建白板", "go(8)"),
+              ) + teamBoards()
+            );
+          case 7:
+            return (
+              heading(
+                "團隊白板模板",
+                "套用模板時會在「" + t.name + "」建立專屬白板。",
+              ) +
+              '<div class="grid">' +
+              [
+                "腦力激盪",
+                "心智圖",
+                "基本流程圖",
+                "Kanban 看板",
+                "SWOT 分析",
+                "使用者旅程",
+              ]
+                .map(
+                  (title, i) =>
+                    '<div class="card">' +
+                    preview(i) +
+                    "<h3>" +
+                    title +
+                    '</h3><p class="muted small">套用後僅目前團隊可見</p>' +
+                    btn(
+                      "使用模板",
+                      "createTemplateBoard(" + JSON.stringify(title) + ")",
+                    ) +
+                    "</div>",
+                )
+                .join("") +
+              "</div>"
+            );
+          case 8:
+            return (
+              heading("建立團隊白板", "新白板將存入目前團隊：" + t.name) +
+              '<div class="card form"><label class="field">白板名稱<input id="teamBoardName" value="我的新白板"></label><p class="muted">所建立的白板只會出現在「' +
+              esc(t.name) +
+              '」工作空間。</p><div class="actions">' +
+              btn("建立白板", "createTeamBoard()") +
+              btn("取消", "go(6)", "ghost") +
+              "</div></div>"
+            );
+          default:
+            return originalContent();
+        }
+      };
+      const originalRender = render;
+      render = function () {
+        syncTeamMeta();
+        if (page >= 9 && page <= 11) {
+          const b = activeTeam().boards.find((b) => b.title === boardTitle);
+          if (b) {
+            b.notes = notes;
+            saveTeams();
+          }
+        }
+        originalRender();
+        const header = $(".top");
+        if (!header) return;
+        const bar = document.createElement("div");
+        bar.className = "team-switcher";
+        bar.innerHTML =
+          '<label for="activeTeamSelect">目前團隊</label><select id="activeTeamSelect" onchange="switchTeam(this.value)">' +
+          teamState.teams
+            .map(
+              (t) =>
+                '<option value="' +
+                esc(t.id) +
+                '" ' +
+                (t.id === teamState.activeId ? "selected" : "") +
+                ">" +
+                esc(t.name) +
+                "</option>",
+            )
+            .join("") +
+          "</select>" +
+          btn("+ 團隊", "go(3)", "ghost");
+        header.insertBefore(bar, header.lastElementChild);
+        const side = $(".side");
+        if (side) {
+          const hint = document.createElement("div");
+          hint.className = "team-side-hint";
+          hint.innerHTML =
+            "<b>團隊工作空間</b><small>" + esc(activeTeam().name) + "</small>";
+          side.insertBefore(hint, side.children[1]);
+        }
+      };
+      function syncTeamMeta() {
+        const t = activeTeam();
+        workspace = t.name;
+        boardCount = t.boards.length;
+      }
+      const qInvite = new URLSearchParams(location.search).get("invite");
+      syncTeam();
+      if (qInvite) {
+        page = 5;
+        setTimeout(() => {
+          const input = $("#joinTeamCode");
+          if (input) input.value = qInvite;
+        }, 50);
+      }
+      render();
+    </script>
+    <style>
+      .team-switcher {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .team-switcher label {
+        font-weight: 750;
+        font-size: 13px;
+        color: #486371;
+      }
+      .team-switcher select {
+        min-width: 170px;
+        max-width: 260px;
+        background: #f3f9f9;
+        border: 1px solid #bed7d9;
+        color: #164e56;
+        border-radius: 9px;
+        padding: 10px;
+      }
+      .team-side-hint {
+        margin: 0 9px 18px;
+        padding: 12px 10px;
+        border-radius: 10px;
+        background: #235968;
+        color: #e7fbfc;
+      }
+      .team-side-hint b,
+      .team-side-hint small {
+        display: block;
+      }
+      .team-side-hint small {
+        margin-top: 5px;
+        color: #b3dcdf;
+        overflow-wrap: anywhere;
+      }
+      .selected-team {
+        border: 2px solid #128b8a;
+        background: #f4fcfb;
+      }
+      .team-choice h3 {
+        margin: 4px 0;
+      }
+      .top {
+        height: auto;
+        min-height: 68px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .field input {
+        font-size: 16px;
+      }
+      @media (max-width: 900px) {
+        .team-side-hint {
+          display: none;
+        }
+        .team-switcher select {
+          max-width: 150px;
+        }
+      }
+      @media (max-width: 600px) {
+        .team-switcher {
+          width: 100%;
+          order: 3;
+        }
+        .team-switcher select {
+          flex: 1;
+          max-width: none;
+          min-width: 120px;
+        }
+        .top > h1 {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </body>
+</html>
